@@ -21,8 +21,44 @@ import re
 import pandas as pd
 from openai import OpenAI
 
-# Initialize client to local LM Studio server
-client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
+# Safe import wrapper for WeasyPrint
+try:
+    from weasyprint import HTML
+
+    WEASYPRINT_AVAILABLE = True
+except (ImportError, OSError):
+    WEASYPRINT_AVAILABLE = False
+    HTML = None
+
+
+# --- DYNAMIC CLIENT INITIALIZATION (Strategy 3) ---
+def get_llm_client():
+    # 1. Safely check Streamlit Secrets & Environment for Groq API Key
+    groq_key = None
+    try:
+        groq_key = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
+    except Exception:
+        groq_key = os.getenv("GROQ_API_KEY")
+
+    # 2. If running on Streamlit Cloud (or local with Groq key), use Groq Cloud API
+    if groq_key:
+        return (
+            OpenAI(
+                api_key=groq_key,
+                base_url="https://api.groq.com/openai/v1",
+            ),
+            "llama-3.3-70b-versatile",
+        )
+
+    # 3. Default fallback: Always use local LM Studio when running on your machine
+    return (
+        OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio"),
+        "local-model",
+    )
+
+
+# Initialize global client and model variable
+client, DEFAULT_MODEL = get_llm_client()
 
 
 class ConversationMemory:
