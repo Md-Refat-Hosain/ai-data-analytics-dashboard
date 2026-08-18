@@ -40,16 +40,15 @@ def get_llm_client():
         groq_key = os.getenv("GROQ_API_KEY")
 
     if groq_key:
-        # Use Groq's OpenAI-compatible endpoint with active model ID
         return (
             OpenAI(
                 api_key=groq_key,
                 base_url="https://api.groq.com/openai/v1",
             ),
-            "llama3-70b-8192",  # Standard active Groq model identifier
+            "llama-3.3-70b-versatile",  # <-- Active Groq model ID
         )
 
-    # Local LM Studio Fallback for your laptop
+    # Local LM Studio Fallback for your machine
     return (
         OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio"),
         "local-model",
