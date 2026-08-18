@@ -32,6 +32,16 @@ except (ImportError, OSError):
 
 
 # --- DYNAMIC CLIENT INITIALIZATION (Strategy 3) ---
+# Safe import for Groq & OpenAI clients
+try:
+    from groq import Groq
+except ImportError:
+    Groq = None
+
+from openai import OpenAI
+
+
+# --- DYNAMIC DUAL-CLIENT INITIALIZATION ---
 def get_llm_client():
     groq_key = None
     try:
@@ -39,16 +49,11 @@ def get_llm_client():
     except Exception:
         groq_key = os.getenv("GROQ_API_KEY")
 
-    if groq_key:
-        return (
-            OpenAI(
-                api_key=groq_key,
-                base_url="https://api.groq.com/openai/v1",
-            ),
-            "llama-3.1-8b-instant",  # Guaranteed active model on Groq free tier
-        )
+    # 1. Use official Groq SDK when deployed with API key
+    if groq_key and Groq is not None:
+        return Groq(api_key=groq_key), "llama-3.3-70b-versatile"
 
-    # Local LM Studio Fallback for your laptop
+    # 2. Fallback: Local LM Studio on laptop
     return (
         OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio"),
         "local-model",
