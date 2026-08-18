@@ -94,7 +94,7 @@ Given a conversation history and a follow-up question, rewrite the follow-up que
 Return ONLY the rewritten standalone question. No extra explanations.
 """
     response = client.chat.completions.create(
-        model="local-model",
+        model=DEFAULT_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},
             {
@@ -170,7 +170,7 @@ B. SINGLE-ROW OVERVIEW / KPIs:
         messages.append({"role": "user", "content": f"Question: {user_question}"})
 
     response = client.chat.completions.create(
-        model="local-model", messages=messages, temperature=0.1
+        model=DEFAULT_MODEL, messages=messages, temperature=0.1
     )
     return response.choices[0].message.content
 
@@ -267,7 +267,7 @@ Rules:
     user_prompt = f"User Question: {user_question}\n\nQuery Result Data:\n{result_str}"
 
     response = client.chat.completions.create(
-        model="local-model",
+        model=DEFAULT_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
@@ -400,7 +400,7 @@ def analyze_anomalies_iqr(df: pd.DataFrame, target_col: str, client):
 
     try:
         response = client.chat.completions.create(
-            model="local-model",
+            model=DEFAULT_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
         )
@@ -468,7 +468,7 @@ Keep response concise, structured, and professional.
 
     try:
         response = client.chat.completions.create(
-            model="local-model",
+            model=DEFAULT_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
         )
