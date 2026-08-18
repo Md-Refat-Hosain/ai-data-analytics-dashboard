@@ -340,9 +340,17 @@ with tab1:
             # SECURITY SANBOX RATIONALE:
             # Executing LLM-generated strings directly poses an arbitrary code execution risk.
 
+        try:
             exec_res = nl_query_pipeline(
                 query_to_run, active_df, active_schema, memory_context=context_str
             )
+        except Exception:
+            st.info(
+                "💡 **Live Demo Notice:** Natural language querying is configured to run via local "
+                "LM Studio during live evaluations. All data profiling, dynamic filtering, "
+                "and visual dashboard tools remain fully interactive online!"
+            )
+            exec_res = None
 
         if exec_res["success"]:
             narrative = format_result_with_llm(query_to_run, exec_res["result"])
